@@ -1,0 +1,2710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI自动记账App原型</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #007AFF;
+            --secondary-color: #5AC8FA;
+            --success-color: #34C759;
+            --warning-color: #FF9500;
+            --danger-color: #FF3B30;
+            --light-bg: #F2F2F7;
+            --dark-bg: #1C1C1E;
+            --text-color: #000000;
+            --text-secondary: #8E8E93;
+            --border-radius: 12px;
+            --spacing: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .prototype-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 50px;
+        }
+        
+        .screen {
+            width: 375px;
+            height: 812px;
+            background-color: white;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            border: 10px solid #111;
+            border-width: 60px 10px;
+            margin-bottom: 40px;
+        }
+        
+        .screen::before {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 30px;
+            background-color: #111;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 20px;
+            z-index: 10;
+        }
+        
+        .screen-content {
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 15px;
+            font-size: 14px;
+            background-color: white;
+        }
+        
+        .header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f1f1;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .tab-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #f1f1f1;
+            background-color: white;
+        }
+        
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+        
+        .tab-item.active {
+            color: var(--primary-color);
+        }
+        
+        .tab-item i {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+        
+        .button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 16px;
+            width: 100%;
+            text-align: center;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        
+        .button.secondary {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #E5E5EA;
+            font-size: 16px;
+            background-color: var(--light-bg);
+        }
+
+        .screen-title {
+            position: absolute;
+            bottom: -30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* AI相关样式 */
+        .ai-bubble {
+            background-color: var(--light-bg);
+            border-radius: 18px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            max-width: 80%;
+            align-self: flex-start;
+        }
+
+        .user-bubble {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 18px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            max-width: 80%;
+            align-self: flex-end;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 15px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background-color: var(--light-bg);
+            border-radius: 20px;
+            margin: 10px 0;
+        }
+
+        .chat-input input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 5px 10px;
+            outline: none;
+        }
+
+        .chat-input i {
+            padding: 0 10px;
+            color: var(--primary-color);
+        }
+
+        .bill-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .bill-category {
+            display: flex;
+            align-items: center;
+        }
+
+        .bill-category i {
+            width: 36px;
+            height: 36px;
+            background-color: #f1f1f1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .bill-amount {
+            font-weight: 600;
+        }
+
+        .expense {
+            color: var(--danger-color);
+        }
+
+        .income {
+            color: var(--success-color);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px 0 15px 0;
+        }
+
+        .pie-chart {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            position: relative;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--primary-color) 0% 30%, 
+                var(--warning-color) 30% 55%, 
+                var(--success-color) 55% 70%, 
+                var(--secondary-color) 70% 85%,
+                var(--danger-color) 85% 100%
+            );
+        }
+
+        .pie-chart::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 70%;
+            background-color: white;
+            border-radius: 50%;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+
+        .camera-view {
+            background-color: #111;
+            height: 60%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+        }
+
+        .ai-prompt {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.6);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .camera-controls {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .camera-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .camera-side-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .chart-container {
+            height: 200px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .bar-chart {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 150px;
+        }
+
+        .bar {
+            width: 30px;
+            background-color: var(--primary-color);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #666;
+        }
+
+        .receipt-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 60%;
+            border: 2px dashed white;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; margin-bottom: 30px;">AI自动记账App原型设计</h1>
+    <div class="prototype-container" id="app">
+        <!-- 原型界面将在这里通过JavaScript动态生成 -->
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const prototypeContainer = document.getElementById('app');
+            
+            // 创建界面
+            const screens = [
+                createWelcomeScreen(),
+                createLoginScreen(),
+                createHomeScreen(),
+                createScanReceiptScreen(),
+                createAddManualScreen(),
+                createAIChatScreen(),
+                createBillDetailsScreen(),
+                createCategoryStatsScreen(),
+                createMonthlyStatsScreen(),
+                createBudgetScreen(),
+                createSettingsScreen(),
+                createProfileScreen()
+            ];
+            
+            // 将所有界面添加到容器
+            screens.forEach(screen => {
+                prototypeContainer.appendChild(screen);
+            });
+        });
+        
+        // 通用组件
+        function createStatusBar() {
+            const statusBar = document.createElement('div');
+            statusBar.className = 'status-bar';
+            
+            const time = document.createElement('div');
+            time.textContent = '9:41';
+            
+            const rightIcons = document.createElement('div');
+            rightIcons.innerHTML = '<i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i>';
+            
+            statusBar.appendChild(time);
+            statusBar.appendChild(rightIcons);
+            
+            return statusBar;
+        }
+        
+        function createTabBar(activeTab) {
+            const tabBar = document.createElement('div');
+            tabBar.className = 'tab-bar';
+            
+            const tabs = [
+                { icon: 'fa-home', label: '首页' },
+                { icon: 'fa-chart-pie', label: '统计' },
+                { icon: 'fa-camera', label: '扫描' },
+                { icon: 'fa-comments', label: 'AI助手' },
+                { icon: 'fa-user', label: '我的' }
+            ];
+            
+            tabs.forEach(tab => {
+                const tabItem = document.createElement('div');
+                tabItem.className = `tab-item ${tab.label === activeTab ? 'active' : ''}`;
+                
+                const icon = document.createElement('i');
+                icon.className = `fas ${tab.icon}`;
+                
+                const label = document.createElement('span');
+                label.textContent = tab.label;
+                
+                tabItem.appendChild(icon);
+                tabItem.appendChild(label);
+                tabBar.appendChild(tabItem);
+            });
+            
+            return tabBar;
+        }
+        
+        function createScreenContainer(title) {
+            const screen = document.createElement('div');
+            screen.className = 'screen';
+            
+            const screenContent = document.createElement('div');
+            screenContent.className = 'screen-content';
+            
+            const titleElement = document.createElement('div');
+            titleElement.className = 'screen-title';
+            titleElement.textContent = title;
+            
+            screen.appendChild(screenContent);
+            screen.appendChild(titleElement);
+            
+            return { screen, content: screenContent };
+        }
+        
+        function createHeader(title, hasBackButton = true, rightIcon = null) {
+            const header = document.createElement('div');
+            header.className = 'header';
+            
+            const leftPart = document.createElement('div');
+            if (hasBackButton) {
+                leftPart.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            } else {
+                leftPart.style.width = '24px';
+            }
+            
+            const titleElement = document.createElement('div');
+            titleElement.className = 'title';
+            titleElement.textContent = title;
+            
+            const rightPart = document.createElement('div');
+            if (rightIcon) {
+                rightPart.innerHTML = `<i class="fas ${rightIcon}"></i>`;
+            } else {
+                rightPart.style.width = '24px';
+            }
+            
+            header.appendChild(leftPart);
+            header.appendChild(titleElement);
+            header.appendChild(rightPart);
+            
+            return header;
+        }
+        
+        function createDivider(text) {
+            const divider = document.createElement('div');
+            divider.style.display = 'flex';
+            divider.style.alignItems = 'center';
+            divider.style.margin = '20px 0';
+            
+            const line1 = document.createElement('div');
+            line1.style.flex = '1';
+            line1.style.height = '1px';
+            line1.style.backgroundColor = '#E5E5EA';
+            
+            const textEl = document.createElement('div');
+            textEl.textContent = text;
+            textEl.style.padding = '0 10px';
+            textEl.style.color = 'var(--text-secondary)';
+            
+            const line2 = document.createElement('div');
+            line2.style.flex = '1';
+            line2.style.height = '1px';
+            line2.style.backgroundColor = '#E5E5EA';
+            
+            divider.appendChild(line1);
+            divider.appendChild(textEl);
+            divider.appendChild(line2);
+            
+            return divider;
+        }
+        
+        function createInputGroup(label, id, type, placeholder) {
+            const group = document.createElement('div');
+            group.className = 'input-group';
+            
+            const labelElement = document.createElement('label');
+            labelElement.setAttribute('for', id);
+            labelElement.textContent = label;
+            
+            const input = document.createElement('input');
+            input.className = 'input-field';
+            input.setAttribute('type', type);
+            input.setAttribute('id', id);
+            input.setAttribute('placeholder', placeholder);
+            
+            group.appendChild(labelElement);
+            group.appendChild(input);
+            
+            return group;
+        }
+        
+        function createSocialButton(icon, bgColor) {
+            const button = document.createElement('div');
+            button.style.width = '50px';
+            button.style.height = '50px';
+            button.style.backgroundColor = bgColor;
+            button.style.borderRadius = '50%';
+            button.style.display = 'flex';
+            button.style.justifyContent = 'center';
+            button.style.alignItems = 'center';
+            
+            const iconElement = document.createElement('i');
+            iconElement.className = `fab ${icon}`;
+            iconElement.style.fontSize = '24px';
+            iconElement.style.color = 'white';
+            
+            button.appendChild(iconElement);
+            
+            return button;
+        }
+        
+        // 欢迎界面
+        function createWelcomeScreen() {
+            const { screen, content } = createScreenContainer('欢迎界面');
+            content.style.backgroundColor = 'white';
+            content.style.display = 'flex';
+            content.style.flexDirection = 'column';
+            content.style.justifyContent = 'center';
+            content.style.alignItems = 'center';
+            content.style.padding = '20px';
+            
+            const logo = document.createElement('div');
+            logo.style.width = '120px';
+            logo.style.height = '120px';
+            logo.style.borderRadius = '30px';
+            logo.style.backgroundColor = 'var(--primary-color)';
+            logo.style.display = 'flex';
+            logo.style.justifyContent = 'center';
+            logo.style.alignItems = 'center';
+            logo.style.marginBottom = '30px';
+            logo.innerHTML = '<i class="fas fa-wallet" style="font-size: 60px; color: white;"></i>';
+            
+            const appName = document.createElement('h1');
+            appName.textContent = 'AI智能记账';
+            appName.style.fontSize = '28px';
+            appName.style.marginBottom = '10px';
+            
+            const slogan = document.createElement('p');
+            slogan.textContent = '让AI帮你轻松管理财务';
+            slogan.style.color = 'var(--text-secondary)';
+            slogan.style.marginBottom = '50px';
+            
+            const startButton = document.createElement('button');
+            startButton.className = 'button';
+            startButton.textContent = '开始使用';
+            startButton.style.marginBottom = '15px';
+            
+            const loginButton = document.createElement('button');
+            loginButton.className = 'button secondary';
+            loginButton.textContent = '登录账号';
+            
+            content.appendChild(logo);
+            content.appendChild(appName);
+            content.appendChild(slogan);
+            content.appendChild(startButton);
+            content.appendChild(loginButton);
+            
+            return screen;
+        }
+        
+        // 登录界面
+        function createLoginScreen() {
+            const { screen, content } = createScreenContainer('登录界面');
+            content.appendChild(createStatusBar());
+            
+            const header = createHeader('登录/注册');
+            
+            const formContent = document.createElement('div');
+            formContent.className = 'content';
+            
+            const welcomeText = document.createElement('h2');
+            welcomeText.textContent = '欢迎回来';
+            welcomeText.style.fontSize = '24px';
+            welcomeText.style.marginBottom = '30px';
+            
+            const phoneInput = createInputGroup('手机号码', 'phone', 'text', '请输入手机号码');
+            const passwordInput = createInputGroup('密码', 'password', 'password', '请输入密码');
+            
+            const forgotPassword = document.createElement('div');
+            forgotPassword.textContent = '忘记密码?';
+            forgotPassword.style.color = 'var(--primary-color)';
+            forgotPassword.style.textAlign = 'right';
+            forgotPassword.style.marginBottom = '30px';
+            
+            const loginBtn = document.createElement('button');
+            loginBtn.className = 'button';
+            loginBtn.textContent = '登录';
+            loginBtn.style.marginBottom = '15px';
+            
+            const registerText = document.createElement('div');
+            registerText.innerHTML = '还没有账号? <span style="color: var(--primary-color);">立即注册</span>';
+            registerText.style.textAlign = 'center';
+            registerText.style.marginBottom = '30px';
+            
+            const orDivider = createDivider('或');
+            
+            const socialLogin = document.createElement('div');
+            socialLogin.style.display = 'flex';
+            socialLogin.style.justifyContent = 'center';
+            socialLogin.style.gap = '30px';
+            socialLogin.style.marginTop = '20px';
+            
+            const wechatBtn = createSocialButton('fa-weixin', '#07C160');
+            const appleBtn = createSocialButton('fa-apple', '#000');
+            
+            socialLogin.appendChild(wechatBtn);
+            socialLogin.appendChild(appleBtn);
+            
+            formContent.appendChild(welcomeText);
+            formContent.appendChild(phoneInput);
+            formContent.appendChild(passwordInput);
+            formContent.appendChild(forgotPassword);
+            formContent.appendChild(loginBtn);
+            formContent.appendChild(registerText);
+            formContent.appendChild(orDivider);
+            formContent.appendChild(socialLogin);
+            
+            content.appendChild(header);
+            content.appendChild(formContent);
+            
+            return screen;
+        }
+        
+        // 首页界面
+        function createHomeScreen() {
+            const { screen, content } = createScreenContainer('首页');
+            content.appendChild(createStatusBar());
+            
+            // 顶部用户信息
+            const header = document.createElement('div');
+            header.className = 'header';
+            header.style.padding = '15px 20px';
+            
+            const greeting = document.createElement('div');
+            greeting.innerHTML = '<div style="font-size: 14px; color: var(--text-secondary);">您好，</div><div style="font-size: 20px; font-weight: bold;">张小明</div>';
+            
+            const notificationBtn = document.createElement('div');
+            notificationBtn.innerHTML = '<i class="fas fa-bell" style="font-size: 20px;"></i>';
+            
+            header.appendChild(greeting);
+            header.appendChild(notificationBtn);
+            
+            const mainContent = document.createElement('div');
+            mainContent.className = 'content';
+            
+            // 本月概览卡片
+            const overviewCard = document.createElement('div');
+            overviewCard.className = 'card';
+            overviewCard.style.borderRadius = '16px';
+            overviewCard.style.marginBottom = '20px';
+            
+            const cardHeader = document.createElement('div');
+            cardHeader.style.display = 'flex';
+            cardHeader.style.justifyContent = 'space-between';
+            cardHeader.style.marginBottom = '15px';
+            cardHeader.style.alignItems = 'center';
+            
+            const cardTitle = document.createElement('div');
+            cardTitle.textContent = '本月概览';
+            cardTitle.style.fontWeight = 'bold';
+            
+            const dateSelector = document.createElement('div');
+            dateSelector.innerHTML = '2023年10月 <i class="fas fa-chevron-down" style="font-size: 12px;"></i>';
+            dateSelector.style.color = 'var(--text-secondary)';
+            dateSelector.style.fontSize = '14px';
+            
+            cardHeader.appendChild(cardTitle);
+            cardHeader.appendChild(dateSelector);
+            
+            const balanceRow = document.createElement('div');
+            balanceRow.style.display = 'flex';
+            balanceRow.style.justifyContent = 'space-between';
+            balanceRow.style.marginBottom = '20px';
+            
+            const incomeColumn = document.createElement('div');
+            incomeColumn.innerHTML = '<div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 5px;">收入</div><div style="color: var(--success-color); font-size: 24px; font-weight: bold;">¥5,280</div>';
+            
+            const expenseColumn = document.createElement('div');
+            expenseColumn.innerHTML = '<div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 5px;">支出</div><div style="color: var(--danger-color); font-size: 24px; font-weight: bold;">¥3,650</div>';
+            
+            const balanceColumn = document.createElement('div');
+            balanceColumn.innerHTML = '<div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 5px;">结余</div><div style="font-size: 24px; font-weight: bold;">¥1,630</div>';
+            
+            balanceRow.appendChild(incomeColumn);
+            balanceRow.appendChild(expenseColumn);
+            balanceRow.appendChild(balanceColumn);
+            
+            const budgetProgress = document.createElement('div');
+            budgetProgress.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <div>本月预算</div>
+                    <div>¥3,650 / ¥5,000</div>
+                </div>
+                <div style="height: 6px; background-color: var(--light-bg); border-radius: 3px; overflow: hidden;">
+                    <div style="width: 73%; height: 100%; background-color: var(--primary-color);"></div>
+                </div>
+                <div style="color: var(--text-secondary); font-size: 12px; margin-top: 5px;">距离预算上限还剩 ¥1,350</div>
+            `;
+            
+            overviewCard.appendChild(cardHeader);
+            overviewCard.appendChild(balanceRow);
+            overviewCard.appendChild(budgetProgress);
+            
+            // 快捷操作区
+            const quickActions = document.createElement('div');
+            quickActions.style.display = 'flex';
+            quickActions.style.justifyContent = 'space-between';
+            quickActions.style.marginBottom = '20px';
+            
+            const actions = [
+                { icon: 'fa-camera', label: '扫描小票' },
+                { icon: 'fa-edit', label: '手动记账' },
+                { icon: 'fa-comments', label: 'AI助手' },
+                { icon: 'fa-chart-line', label: '统计分析' }
+            ];
+            
+            actions.forEach(action => {
+                const actionItem = document.createElement('div');
+                actionItem.style.display = 'flex';
+                actionItem.style.flexDirection = 'column';
+                actionItem.style.alignItems = 'center';
+                
+                const iconCircle = document.createElement('div');
+                iconCircle.style.width = '50px';
+                iconCircle.style.height = '50px';
+                iconCircle.style.borderRadius = '50%';
+                iconCircle.style.backgroundColor = 'var(--light-bg)';
+                iconCircle.style.display = 'flex';
+                iconCircle.style.justifyContent = 'center';
+                iconCircle.style.alignItems = 'center';
+                iconCircle.style.marginBottom = '8px';
+                iconCircle.innerHTML = `<i class="fas ${action.icon}" style="color: var(--primary-color); font-size: 20px;"></i>`;
+                
+                const actionLabel = document.createElement('div');
+                actionLabel.textContent = action.label;
+                actionLabel.style.fontSize = '12px';
+                
+                actionItem.appendChild(iconCircle);
+                actionItem.appendChild(actionLabel);
+                quickActions.appendChild(actionItem);
+            });
+            
+            // 最近交易
+            const recentTransactions = document.createElement('div');
+            recentTransactions.style.marginBottom = '20px';
+            
+            const transactionHeader = document.createElement('div');
+            transactionHeader.style.display = 'flex';
+            transactionHeader.style.justifyContent = 'space-between';
+            transactionHeader.style.alignItems = 'center';
+            transactionHeader.style.marginBottom = '15px';
+            
+            const transactionTitle = document.createElement('div');
+            transactionTitle.textContent = '最近交易';
+            transactionTitle.style.fontWeight = 'bold';
+            
+            const viewAllLink = document.createElement('div');
+            viewAllLink.textContent = '查看全部';
+            viewAllLink.style.color = 'var(--primary-color)';
+            viewAllLink.style.fontSize = '14px';
+            
+            transactionHeader.appendChild(transactionTitle);
+            transactionHeader.appendChild(viewAllLink);
+            
+            const transactionList = document.createElement('div');
+            
+            const transactions = [
+                { icon: 'fa-utensils', category: '餐饮', description: '午餐', amount: -35, time: '今天 12:30' },
+                { icon: 'fa-shopping-bag', category: '购物', description: '超市', amount: -128.5, time: '昨天 16:45' },
+                { icon: 'fa-subway', category: '交通', description: '地铁', amount: -7, time: '昨天 09:15' },
+                { icon: 'fa-credit-card', category: '工资', description: '10月工资', amount: 5000, time: '10月15日' }
+            ];
+            
+            transactions.forEach(transaction => {
+                const item = document.createElement('div');
+                item.className = 'bill-item';
+                
+                const leftPart = document.createElement('div');
+                leftPart.style.display = 'flex';
+                leftPart.style.alignItems = 'center';
+                
+                const categoryIcon = document.createElement('div');
+                categoryIcon.className = 'bill-category';
+                categoryIcon.innerHTML = `<i class="fas ${transaction.icon}"></i>`;
+                
+                const info = document.createElement('div');
+                info.innerHTML = `<div style="font-weight: 500;">${transaction.category}</div><div style="font-size: 12px; color: var(--text-secondary);">${transaction.description}</div>`;
+                
+                leftPart.appendChild(categoryIcon);
+                leftPart.appendChild(info);
+                
+                const rightPart = document.createElement('div');
+                rightPart.style.textAlign = 'right';
+                
+                const amount = document.createElement('div');
+                amount.className = `bill-amount ${transaction.amount > 0 ? 'income' : 'expense'}`;
+                amount.textContent = `${transaction.amount > 0 ? '+' : ''}${transaction.amount.toFixed(2)}`;
+                
+                const time = document.createElement('div');
+                time.textContent = transaction.time;
+                time.style.fontSize = '12px';
+                time.style.color = 'var(--text-secondary)';
+                
+                rightPart.appendChild(amount);
+                rightPart.appendChild(time);
+                
+                item.appendChild(leftPart);
+                item.appendChild(rightPart);
+                transactionList.appendChild(item);
+            });
+            
+            recentTransactions.appendChild(transactionHeader);
+            recentTransactions.appendChild(transactionList);
+            
+            // AI智能建议
+            const aiSuggestion = document.createElement('div');
+            aiSuggestion.className = 'card';
+            aiSuggestion.style.backgroundColor = 'var(--light-bg)';
+            aiSuggestion.style.position = 'relative';
+            aiSuggestion.style.padding = '15px';
+            aiSuggestion.style.marginBottom = '20px';
+            
+            const aiIcon = document.createElement('div');
+            aiIcon.style.position = 'absolute';
+            aiIcon.style.top = '15px';
+            aiIcon.style.right = '15px';
+            aiIcon.innerHTML = '<i class="fas fa-robot" style="color: var(--primary-color);"></i>';
+            
+            const aiTitle = document.createElement('div');
+            aiTitle.textContent = 'AI智能建议';
+            aiTitle.style.fontWeight = 'bold';
+            aiTitle.style.marginBottom = '10px';
+            
+            const aiContent = document.createElement('div');
+            aiContent.textContent = '根据您的消费习惯分析，本月在餐饮方面的支出比上月增加了25%，建议适当控制外卖消费频率。';
+            
+            aiSuggestion.appendChild(aiIcon);
+            aiSuggestion.appendChild(aiTitle);
+            aiSuggestion.appendChild(aiContent);
+            
+            mainContent.appendChild(overviewCard);
+            mainContent.appendChild(quickActions);
+            mainContent.appendChild(recentTransactions);
+            mainContent.appendChild(aiSuggestion);
+            
+            content.appendChild(header);
+            content.appendChild(mainContent);
+            content.appendChild(createTabBar('首页'));
+            
+            return screen;
+        }
+        
+        // 扫描小票界面
+        function createScanReceiptScreen() {
+            const { screen, content } = createScreenContainer('扫描小票');
+            content.appendChild(createStatusBar());
+            
+            const header = createHeader('扫描小票', true, 'fa-cog');
+            
+            const cameraContent = document.createElement('div');
+            cameraContent.style.flex = '1';
+            cameraContent.style.display = 'flex';
+            cameraContent.style.flexDirection = 'column';
+            
+            const cameraView = document.createElement('div');
+            cameraView.className = 'camera-view';
+            
+            const receiptFrame = document.createElement('div');
+            receiptFrame.className = 'receipt-frame';
+            receiptFrame.innerHTML = '<i class="fas fa-receipt" style="font-size: 40px; opacity: 0.5;"></i>';
+            
+            const aiPrompt = document.createElement('div');
+            aiPrompt.className = 'ai-prompt';
+            aiPrompt.innerHTML = '<i class="fas fa-robot"></i> 请将小票放入框内';
+            
+            cameraView.appendChild(receiptFrame);
+            cameraView.appendChild(aiPrompt);
+            
+            const resultsArea = document.createElement('div');
+            resultsArea.style.flex = '1';
+            resultsArea.style.padding = '20px';
+            resultsArea.style.overflow = 'auto';
+            
+            const instructions = document.createElement('div');
+            instructions.style.textAlign = 'center';
+            instructions.style.margin = '10px 0';
+            instructions.innerHTML = '<div style="margin-bottom: 10px; font-weight: bold;">扫描小票后，AI将自动识别：</div>';
+            
+            const featuresList = document.createElement('div');
+            featuresList.style.display = 'flex';
+            featuresList.style.flexWrap = 'wrap';
+            featuresList.style.justifyContent = 'space-around';
+            featuresList.style.gap = '15px';
+            featuresList.style.marginTop = '15px';
+            
+            const features = [
+                { icon: 'fa-store', text: '商家名称' },
+                { icon: 'fa-calendar-alt', text: '购买日期' },
+                { icon: 'fa-tag', text: '商品类别' },
+                { icon: 'fa-money-bill-wave', text: '消费金额' }
+            ];
+            
+            features.forEach(feature => {
+                const featureItem = document.createElement('div');
+                featureItem.style.display = 'flex';
+                featureItem.style.flexDirection = 'column';
+                featureItem.style.alignItems = 'center';
+                featureItem.style.width = '40%';
+                featureItem.style.marginBottom = '10px';
+                
+                const iconCircle = document.createElement('div');
+                iconCircle.style.width = '40px';
+                iconCircle.style.height = '40px';
+                iconCircle.style.borderRadius = '50%';
+                iconCircle.style.backgroundColor = 'var(--light-bg)';
+                iconCircle.style.display = 'flex';
+                iconCircle.style.justifyContent = 'center';
+                iconCircle.style.alignItems = 'center';
+                iconCircle.style.marginBottom = '5px';
+                iconCircle.innerHTML = `<i class="fas ${feature.icon}" style="color: var(--primary-color);"></i>`;
+                
+                const featureText = document.createElement('div');
+                featureText.textContent = feature.text;
+                featureText.style.fontSize = '12px';
+                
+                featureItem.appendChild(iconCircle);
+                featureItem.appendChild(featureText);
+                featuresList.appendChild(featureItem);
+            });
+            
+            instructions.appendChild(featuresList);
+            resultsArea.appendChild(instructions);
+            
+            const cameraControls = document.createElement('div');
+            cameraControls.className = 'camera-controls';
+            
+            const flashBtn = document.createElement('div');
+            flashBtn.className = 'camera-side-button';
+            flashBtn.innerHTML = '<i class="fas fa-bolt"></i>';
+            
+            const shutterBtn = document.createElement('div');
+            shutterBtn.className = 'camera-button';
+            shutterBtn.innerHTML = '<i class="fas fa-camera" style="color: var(--primary-color);"></i>';
+            
+            const galleryBtn = document.createElement('div');
+            galleryBtn.className = 'camera-side-button';
+            galleryBtn.innerHTML = '<i class="fas fa-images"></i>';
+            
+            cameraControls.appendChild(flashBtn);
+            cameraControls.appendChild(shutterBtn);
+            cameraControls.appendChild(galleryBtn);
+            
+            cameraContent.appendChild(cameraView);
+            cameraContent.appendChild(resultsArea);
+            cameraContent.appendChild(cameraControls);
+            
+            content.appendChild(header);
+            content.appendChild(cameraContent);
+            
+            return screen;
+        }
+        
+        // 手动记账界面
+        function createAddManualScreen() {
+            const { screen, content } = createScreenContainer('手动记账');
+            content.appendChild(createStatusBar());
+            
+            const header = createHeader('添加记账');
+            
+            const formContent = document.createElement('div');
+            formContent.className = 'content';
+            
+            // 类型选择
+            const typeSelector = document.createElement('div');
+            typeSelector.style.display = 'flex';
+            typeSelector.style.marginBottom = '20px';
+            
+            const expenseBtn = document.createElement('div');
+            expenseBtn.style.flex = '1';
+            expenseBtn.style.textAlign = 'center';
+            expenseBtn.style.padding = '10px';
+            expenseBtn.style.borderBottom = '2px solid var(--primary-color)';
+            expenseBtn.style.fontWeight = 'bold';
+            expenseBtn.style.color = 'var(--primary-color)';
+            expenseBtn.textContent = '支出';
+            
+            const incomeBtn = document.createElement('div');
+            incomeBtn.style.flex = '1';
+            incomeBtn.style.textAlign = 'center';
+            incomeBtn.style.padding = '10px';
+            incomeBtn.style.borderBottom = '2px solid transparent';
+            incomeBtn.style.color = 'var(--text-secondary)';
+            incomeBtn.textContent = '收入';
+            
+            typeSelector.appendChild(expenseBtn);
+            typeSelector.appendChild(incomeBtn);
+            
+            // 金额输入
+            const amountInput = document.createElement('div');
+            amountInput.style.display = 'flex';
+            amountInput.style.alignItems = 'center';
+            amountInput.style.marginBottom = '30px';
+            
+            const currencySymbol = document.createElement('div');
+            currencySymbol.textContent = '¥';
+            currencySymbol.style.fontSize = '30px';
+            currencySymbol.style.marginRight = '10px';
+            
+            const amount = document.createElement('input');
+            amount.type = 'text';
+            amount.value = '0.00';
+            amount.style.border = 'none';
+            amount.style.fontSize = '36px';
+            amount.style.fontWeight = 'bold';
+            amount.style.width = '100%';
+            amount.style.outline = 'none';
+            
+            amountInput.appendChild(currencySymbol);
+            amountInput.appendChild(amount);
+            
+            // 类别选择
+            const categorySection = document.createElement('div');
+            categorySection.style.marginBottom = '20px';
+            
+            const categoryLabel = document.createElement('div');
+            categoryLabel.textContent = '类别';
+            categoryLabel.style.marginBottom = '15px';
+            categoryLabel.style.fontWeight = 'bold';
+            
+            const categoryGrid = document.createElement('div');
+            categoryGrid.style.display = 'grid';
+            categoryGrid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+            categoryGrid.style.gap = '15px';
+            
+            const categories = [
+                { icon: 'fa-utensils', name: '餐饮', color: '#FF9500' },
+                { icon: 'fa-shopping-bag', name: '购物', color: '#FF2D55' },
+                { icon: 'fa-home', name: '住房', color: '#5856D6' },
+                { icon: 'fa-subway', name: '交通', color: '#007AFF' },
+                { icon: 'fa-medkit', name: '医疗', color: '#FF3B30' },
+                { icon: 'fa-gamepad', name: '娱乐', color: '#AF52DE' },
+                { icon: 'fa-tshirt', name: '服饰', color: '#FF9500' },
+                { icon: 'fa-book', name: '教育', color: '#34C759' }
+            ];
+            
+            categories.forEach(category => {
+                const categoryItem = document.createElement('div');
+                categoryItem.style.display = 'flex';
+                categoryItem.style.flexDirection = 'column';
+                categoryItem.style.alignItems = 'center';
+                
+                const iconCircle = document.createElement('div');
+                iconCircle.style.width = '50px';
+                iconCircle.style.height = '50px';
+                iconCircle.style.borderRadius = '50%';
+                iconCircle.style.backgroundColor = category.color;
+                iconCircle.style.display = 'flex';
+                iconCircle.style.justifyContent = 'center';
+                iconCircle.style.alignItems = 'center';
+                iconCircle.style.marginBottom = '5px';
+                iconCircle.innerHTML = `<i class="fas ${category.icon}" style="color: white; font-size: 20px;"></i>`;
+                
+                const name = document.createElement('div');
+                name.textContent = category.name;
+                name.style.fontSize = '12px';
+                
+                categoryItem.appendChild(iconCircle);
+                categoryItem.appendChild(name);
+                categoryGrid.appendChild(categoryItem);
+            });
+            
+            categorySection.appendChild(categoryLabel);
+            categorySection.appendChild(categoryGrid);
+            
+            // 其他信息
+            const otherInfo = document.createElement('div');
+            
+            const dateInput = createInputGroup('日期', 'date', 'date', '');
+            const dateField = dateInput.querySelector('input');
+            dateField.value = new Date().toISOString().split('T')[0];
+            
+            const noteInput = createInputGroup('备注', 'note', 'text', '添加备注...');
+            
+            otherInfo.appendChild(dateInput);
+            otherInfo.appendChild(noteInput);
+            
+            // AI辅助
+            const aiHelper = document.createElement('div');
+            aiHelper.className = 'card';
+            aiHelper.style.backgroundColor = 'var(--light-bg)';
+            aiHelper.style.marginTop = '20px';
+            aiHelper.style.marginBottom = '30px';
+            aiHelper.style.display = 'flex';
+            aiHelper.style.alignItems = 'center';
+            aiHelper.style.padding = '15px';
+            
+            const aiIcon = document.createElement('div');
+            aiIcon.style.marginRight = '15px';
+            aiIcon.innerHTML = '<i class="fas fa-robot" style="color: var(--primary-color); font-size: 24px;"></i>';
+            
+            const aiText = document.createElement('div');
+            aiText.textContent = '使用AI语音助手，只需说出"记录一笔20元的餐饮费"';
+            aiText.style.fontSize = '14px';
+            
+            aiHelper.appendChild(aiIcon);
+            aiHelper.appendChild(aiText);
+            
+            // 保存按钮
+            const saveButton = document.createElement('button');
+            saveButton.className = 'button';
+            saveButton.textContent = '保存';
+            saveButton.style.marginTop = '10px';
+            
+            formContent.appendChild(typeSelector);
+            formContent.appendChild(amountInput);
+            formContent.appendChild(categorySection);
+            formContent.appendChild(otherInfo);
+            formContent.appendChild(aiHelper);
+            formContent.appendChild(saveButton);
+            
+            content.appendChild(header);
+            content.appendChild(formContent);
+            
+            return screen;
+        }
+        
+        // AI聊天助手界面
+        function createAIChatScreen() {
+            const { screen, content } = createScreenContainer('AI助手');
+            content.appendChild(createStatusBar());
+            
+            // 聊天界面
+            const chatContainer = document.createElement('div');
+            chatContainer.className = 'chat-container';
+            
+            // 聊天消息区域
+            const messagesArea = document.createElement('div');
+            messagesArea.className = 'chat-messages';
+            
+            // AI欢迎消息
+            const welcomeMessage = document.createElement('div');
+            welcomeMessage.className = 'ai-bubble';
+            welcomeMessage.textContent = '你好！我是你的AI记账助手，有什么可以帮到你的吗？你可以这样问我：';
+            
+            const suggestionsList = document.createElement('div');
+            suggestionsList.style.marginTop = '10px';
+            
+            const suggestions = [
+                '本月我在餐饮上花了多少钱？',
+                '我的消费习惯有什么问题？',
+                '如何制定合理的预算计划？',
+                '帮我记录一笔20元的午餐费用'
+            ];
+            
+            suggestions.forEach(suggestion => {
+                const suggestionItem = document.createElement('div');
+                suggestionItem.style.backgroundColor = 'white';
+                suggestionItem.style.padding = '8px 12px';
+                suggestionItem.style.borderRadius = '16px';
+                suggestionItem.style.display = 'inline-block';
+                suggestionItem.style.margin = '5px 5px 0 0';
+                suggestionItem.style.fontSize = '14px';
+                suggestionItem.textContent = suggestion;
+                
+                suggestionsList.appendChild(suggestionItem);
+            });
+            
+            welcomeMessage.appendChild(suggestionsList);
+            
+            // 用户问题示例
+            const userQuestion = document.createElement('div');
+            userQuestion.className = 'user-bubble';
+            userQuestion.textContent = '本月我在餐饮上花了多少钱？';
+            
+            // AI回答
+            const aiAnswer = document.createElement('div');
+            aiAnswer.className = 'ai-bubble';
+            aiAnswer.innerHTML = `
+                <div>根据你的记账数据，本月你在餐饮上总共消费了 <b>¥856.50</b>，占总支出的 <b>23.5%</b>。</div>
+                <div style="margin-top: 10px;">相比上个月减少了 <b>¥124.30</b>（降低了 12.7%）。继续保持！</div>
+            `;
+            
+            // 添加饼图分析
+            const chartAnalysis = document.createElement('div');
+            chartAnalysis.className = 'ai-bubble';
+            chartAnalysis.style.padding = '15px';
+            
+            const chartTitle = document.createElement('div');
+            chartTitle.textContent = '本月餐饮消费明细';
+            chartTitle.style.fontWeight = 'bold';
+            chartTitle.style.marginBottom = '10px';
+            
+            const miniChart = document.createElement('div');
+            miniChart.style.display = 'flex';
+            miniChart.style.alignItems = 'center';
+            miniChart.style.justifyContent = 'space-between';
+            miniChart.style.marginBottom = '15px';
+            
+            const chartCategories = [
+                { name: '外卖', value: 425, percent: 49.6, color: '#FF9500' },
+                { name: '餐厅', value: 320, percent: 37.4, color: '#FF3B30' },
+                { name: '咖啡', value: 111.5, percent: 13, color: '#5856D6' }
+            ];
+            
+            const pieChart = document.createElement('div');
+            pieChart.style.width = '80px';
+            pieChart.style.height = '80px';
+            pieChart.style.borderRadius = '50%';
+            pieChart.style.background = `conic-gradient(
+                ${chartCategories[0].color} 0% ${chartCategories[0].percent}%, 
+                ${chartCategories[1].color} ${chartCategories[0].percent}% ${chartCategories[0].percent + chartCategories[1].percent}%, 
+                ${chartCategories[2].color} ${chartCategories[0].percent + chartCategories[1].percent}% 100%
+            )`;
+            
+            const chartLegend = document.createElement('div');
+            chartLegend.style.flex = '1';
+            chartLegend.style.paddingLeft = '15px';
+            
+            chartCategories.forEach(category => {
+                const legendItem = document.createElement('div');
+                legendItem.style.display = 'flex';
+                legendItem.style.alignItems = 'center';
+                legendItem.style.marginBottom = '5px';
+                
+                const colorBox = document.createElement('div');
+                colorBox.style.width = '12px';
+                colorBox.style.height = '12px';
+                colorBox.style.backgroundColor = category.color;
+                colorBox.style.marginRight = '5px';
+                colorBox.style.borderRadius = '2px';
+                
+                const legendText = document.createElement('div');
+                legendText.style.fontSize = '12px';
+                legendText.style.display = 'flex';
+                legendText.style.justifyContent = 'space-between';
+                legendText.style.width = '100%';
+                legendText.innerHTML = `
+                    <span>${category.name}</span>
+                    <span>¥${category.value} (${category.percent}%)</span>
+                `;
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(legendText);
+                chartLegend.appendChild(legendItem);
+            });
+            
+            miniChart.appendChild(pieChart);
+            miniChart.appendChild(chartLegend);
+            
+            const suggestion = document.createElement('div');
+            suggestion.style.fontSize = '14px';
+            suggestion.style.borderTop = '1px solid #E5E5EA';
+            suggestion.style.paddingTop = '10px';
+            suggestion.textContent = '建议：外卖消费占比近一半，可以考虑自己做饭或带饭，每月可节省约200元。';
+            
+            chartAnalysis.appendChild(chartTitle);
+            chartAnalysis.appendChild(miniChart);
+            chartAnalysis.appendChild(suggestion);
+            
+            // 添加所有消息
+            messagesArea.appendChild(welcomeMessage);
+            messagesArea.appendChild(userQuestion);
+            messagesArea.appendChild(aiAnswer);
+            messagesArea.appendChild(chartAnalysis);
+            
+            // 输入区域
+            const inputArea = document.createElement('div');
+            inputArea.className = 'chat-input';
+            
+            const micBtn = document.createElement('div');
+            micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            
+            const textInput = document.createElement('input');
+            textInput.type = 'text';
+            textInput.placeholder = '输入你的问题...';
+            
+            const sendBtn = document.createElement('div');
+            sendBtn.innerHTML = '<i class="fas fa-paper-plane" style="color: var(--primary-color);"></i>';
+            
+            inputArea.appendChild(micBtn);
+            inputArea.appendChild(textInput);
+            inputArea.appendChild(sendBtn);
+            
+            chatContainer.appendChild(messagesArea);
+            chatContainer.appendChild(inputArea);
+            
+            content.appendChild(chatContainer);
+            content.appendChild(createTabBar('AI助手'));
+            
+            return screen;
+        }
+        
+        // 账单详情界面
+        function createBillDetailsScreen() {
+            const { screen, content } = createScreenContainer('账单详情');
+            content.appendChild(createStatusBar());
+            
+            const header = createHeader('账单详情', true, 'fa-ellipsis-h');
+            
+            const detailsContent = document.createElement('div');
+            detailsContent.className = 'content';
+            
+            // 金额显示
+            const amountDisplay = document.createElement('div');
+            amountDisplay.style.textAlign = 'center';
+            amountDisplay.style.marginBottom = '30px';
+            
+            const amount = document.createElement('div');
+            amount.textContent = '¥128.50';
+            amount.style.fontSize = '36px';
+            amount.style.fontWeight = 'bold';
+            amount.style.color = 'var(--danger-color)';
+            amount.style.marginBottom = '5px';
+            
+            const amountLabel = document.createElement('div');
+            amountLabel.textContent = '支出';
+            amountLabel.style.color = 'var(--text-secondary)';
+            
+            amountDisplay.appendChild(amount);
+            amountDisplay.appendChild(amountLabel);
+            
+            // 账单信息卡片
+            const infoCard = document.createElement('div');
+            infoCard.className = 'card';
+            
+            const createInfoItem = (label, value, isLast = false) => {
+                const item = document.createElement('div');
+                item.style.display = 'flex';
+                item.style.justifyContent = 'space-between';
+                item.style.padding = '12px 0';
+                
+                if (!isLast) {
+                    item.style.borderBottom = '1px solid #f1f1f1';
+                }
+                
+                const labelEl = document.createElement('div');
+                labelEl.textContent = label;
+                labelEl.style.color = 'var(--text-secondary)';
+                
+                const valueEl = document.createElement('div');
+                valueEl.innerHTML = value;
+                valueEl.style.fontWeight = '500';
+                
+                item.appendChild(labelEl);
+                item.appendChild(valueEl);
+                return item;
+            };
+            
+            const categoryInfo = createInfoItem('类别', '<div style="display: flex; align-items: center;"><div style="width: 24px; height: 24px; border-radius: 50%; background-color: #FF9500; display: flex; justify-content: center; align-items: center; margin-right: 5px;"><i class="fas fa-shopping-bag" style="color: white; font-size: 12px;"></i></div>购物</div>');
+            const merchantInfo = createInfoItem('商家', '永辉超市');
+            const dateInfo = createInfoItem('日期', '2023-10-20 16:45');
+            const paymentInfo = createInfoItem('支付方式', '支付宝');
+            const noteInfo = createInfoItem('备注', '日常生活用品', true);
+            
+            infoCard.appendChild(categoryInfo);
+            infoCard.appendChild(merchantInfo);
+            infoCard.appendChild(dateInfo);
+            infoCard.appendChild(paymentInfo);
+            infoCard.appendChild(noteInfo);
+            
+            // 小票识别信息
+            const receiptCard = document.createElement('div');
+            receiptCard.className = 'card';
+            
+            const receiptHeader = document.createElement('div');
+            receiptHeader.style.display = 'flex';
+            receiptHeader.style.justifyContent = 'space-between';
+            receiptHeader.style.alignItems = 'center';
+            receiptHeader.style.marginBottom = '15px';
+            
+            const receiptTitle = document.createElement('div');
+            receiptTitle.textContent = '小票明细';
+            receiptTitle.style.fontWeight = 'bold';
+            
+            const aiLabel = document.createElement('div');
+            aiLabel.innerHTML = '<i class="fas fa-robot" style="color: var(--primary-color); margin-right: 5px;"></i>AI识别';
+            aiLabel.style.fontSize = '12px';
+            aiLabel.style.color = 'var(--text-secondary)';
+            
+            receiptHeader.appendChild(receiptTitle);
+            receiptHeader.appendChild(aiLabel);
+            
+            const receiptItems = [
+                { name: '洗发水', price: 39.9, count: 1 },
+                { name: '沐浴露', price: 36.8, count: 1 },
+                { name: '牙膏', price: 15.8, count: 2 },
+                { name: '洗衣液', price: 20.9, count: 1 }
+            ];
+            
+            const itemsList = document.createElement('div');
+            
+            receiptItems.forEach(item => {
+                const itemRow = document.createElement('div');
+                itemRow.style.display = 'flex';
+                itemRow.style.justifyContent = 'space-between';
+                itemRow.style.marginBottom = '10px';
+                
+                const itemName = document.createElement('div');
+                itemName.textContent = `${item.name} x${item.count}`;
+                
+                const itemPrice = document.createElement('div');
+                itemPrice.textContent = item.price.toFixed(2);
+                
+                itemRow.appendChild(itemName);
+                itemRow.appendChild(itemPrice);
+                itemsList.appendChild(itemRow);
+            });
+            
+            const totalRow = document.createElement('div');
+            totalRow.style.display = 'flex';
+            totalRow.style.justifyContent = 'space-between';
+            totalRow.style.borderTop = '1px solid #f1f1f1';
+            totalRow.style.paddingTop = '10px';
+            totalRow.style.fontWeight = 'bold';
+            
+            const totalLabel = document.createElement('div');
+            totalLabel.textContent = '合计';
+            
+            const totalAmount = document.createElement('div');
+            totalAmount.textContent = '¥128.50';
+            
+            totalRow.appendChild(totalLabel);
+            totalRow.appendChild(totalAmount);
+            
+            receiptCard.appendChild(receiptHeader);
+            receiptCard.appendChild(itemsList);
+            receiptCard.appendChild(totalRow);
+            
+            // 操作按钮
+            const actionButtons = document.createElement('div');
+            actionButtons.style.display = 'flex';
+            actionButtons.style.gap = '15px';
+            actionButtons.style.marginTop = '30px';
+            
+            const editButton = document.createElement('button');
+            editButton.className = 'button';
+            editButton.textContent = '编辑';
+            editButton.style.flex = '1';
+            
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'button secondary';
+            deleteButton.textContent = '删除';
+            deleteButton.style.flex = '1';
+            
+            actionButtons.appendChild(editButton);
+            actionButtons.appendChild(deleteButton);
+            
+            detailsContent.appendChild(amountDisplay);
+            detailsContent.appendChild(infoCard);
+            detailsContent.appendChild(receiptCard);
+            detailsContent.appendChild(actionButtons);
+            
+            content.appendChild(header);
+            content.appendChild(detailsContent);
+            
+            return screen;
+        }
+        
+        // 分类统计界面
+        function createCategoryStatsScreen() {
+            const { screen, content } = createScreenContainer('分类统计');
+            content.appendChild(createStatusBar());
+            
+            const statsContent = document.createElement('div');
+            statsContent.className = 'content';
+            
+            // 时间选择
+            const periodSelector = document.createElement('div');
+            periodSelector.style.display = 'flex';
+            periodSelector.style.justifyContent = 'center';
+            periodSelector.style.marginBottom = '20px';
+            
+            const periods = ['周', '月', '年', '自定义'];
+            
+            periods.forEach((period, index) => {
+                const periodBtn = document.createElement('div');
+                periodBtn.style.padding = '8px 16px';
+                periodBtn.style.margin = '0 5px';
+                periodBtn.style.borderRadius = '20px';
+                periodBtn.style.fontSize = '14px';
+                periodBtn.textContent = period;
+                
+                if (index === 1) { // 默认选中"月"
+                    periodBtn.style.backgroundColor = 'var(--primary-color)';
+                    periodBtn.style.color = 'white';
+                } else {
+                    periodBtn.style.backgroundColor = 'var(--light-bg)';
+                    periodBtn.style.color = 'var(--text-color)';
+                }
+                
+                periodSelector.appendChild(periodBtn);
+            });
+            
+            // 月份选择
+            const monthSelector = document.createElement('div');
+            monthSelector.style.display = 'flex';
+            monthSelector.style.justifyContent = 'space-between';
+            monthSelector.style.alignItems = 'center';
+            monthSelector.style.marginBottom = '30px';
+            
+            const prevMonth = document.createElement('div');
+            prevMonth.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            
+            const currentMonth = document.createElement('div');
+            currentMonth.textContent = '2023年10月';
+            currentMonth.style.fontWeight = 'bold';
+            
+            const nextMonth = document.createElement('div');
+            nextMonth.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextMonth.style.color = '#ccc'; // 禁用状态
+            
+            monthSelector.appendChild(prevMonth);
+            monthSelector.appendChild(currentMonth);
+            monthSelector.appendChild(nextMonth);
+            
+            // 总览数据
+            const overviewCard = document.createElement('div');
+            overviewCard.className = 'card';
+            overviewCard.style.marginBottom = '20px';
+            
+            const overviewTitle = document.createElement('div');
+            overviewTitle.textContent = '本月总览';
+            overviewTitle.style.fontWeight = 'bold';
+            overviewTitle.style.marginBottom = '15px';
+            
+            const overviewData = document.createElement('div');
+            overviewData.style.display = 'flex';
+            overviewData.style.justifyContent = 'space-between';
+            
+            const expenseCol = document.createElement('div');
+            expenseCol.innerHTML = '<div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 5px;">支出</div><div style="color: var(--danger-color); font-size: 24px; font-weight: bold;">¥3,650</div>';
+            
+            const incomeCol = document.createElement('div');
+            incomeCol.innerHTML = '<div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 5px;">收入</div><div style="color: var(--success-color); font-size: 24px; font-weight: bold;">¥5,280</div>';
+            
+            overviewData.appendChild(expenseCol);
+            overviewData.appendChild(incomeCol);
+            
+            overviewCard.appendChild(overviewTitle);
+            overviewCard.appendChild(overviewData);
+            
+            // 饼图
+            const chartCard = document.createElement('div');
+            chartCard.className = 'card';
+            chartCard.style.marginBottom = '20px';
+            
+            const chartTitle = document.createElement('div');
+            chartTitle.textContent = '支出分类';
+            chartTitle.style.fontWeight = 'bold';
+            chartTitle.style.marginBottom = '15px';
+            
+            const pieChart = document.createElement('div');
+            pieChart.className = 'pie-chart';
+            
+            const chartLegend = document.createElement('div');
+            chartLegend.className = 'chart-legend';
+            
+            const categories = [
+                { name: '餐饮', percent: 30, color: 'var(--primary-color)' },
+                { name: '购物', percent: 25, color: 'var(--warning-color)' },
+                { name: '交通', percent: 15, color: 'var(--success-color)' },
+                { name: '住房', percent: 15, color: 'var(--secondary-color)' },
+                { name: '其他', percent: 15, color: 'var(--danger-color)' }
+            ];
+            
+            categories.forEach(category => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                
+                const colorBox = document.createElement('div');
+                colorBox.className = 'legend-color';
+                colorBox.style.backgroundColor = category.color;
+                
+                const text = document.createElement('div');
+                text.textContent = `${category.name} ${category.percent}%`;
+                text.style.fontSize = '12px';
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(text);
+                chartLegend.appendChild(legendItem);
+            });
+            
+            chartCard.appendChild(chartTitle);
+            chartCard.appendChild(pieChart);
+            chartCard.appendChild(chartLegend);
+            
+            // 分类列表
+            const categoryList = document.createElement('div');
+            categoryList.style.marginBottom = '20px';
+            
+            const listTitle = document.createElement('div');
+            listTitle.textContent = '分类明细';
+            listTitle.style.fontWeight = 'bold';
+            listTitle.style.marginBottom = '15px';
+            
+            const list = document.createElement('div');
+            
+            const listItems = [
+                { icon: 'fa-utensils', name: '餐饮', amount: 1095, percent: 30 },
+                { icon: 'fa-shopping-bag', name: '购物', amount: 912.5, percent: 25 },
+                { icon: 'fa-subway', name: '交通', amount: 547.5, percent: 15 },
+                { icon: 'fa-home', name: '住房', amount: 547.5, percent: 15 },
+                { icon: 'fa-ellipsis-h', name: '其他', amount: 547.5, percent: 15 }
+            ];
+            
+            listItems.forEach(item => {
+                const listItem = document.createElement('div');
+                listItem.className = 'bill-item';
+                
+                const leftPart = document.createElement('div');
+                leftPart.style.display = 'flex';
+                leftPart.style.alignItems = 'center';
+                
+                const categoryIcon = document.createElement('div');
+                categoryIcon.className = 'bill-category';
+                categoryIcon.innerHTML = `<i class="fas ${item.icon}"></i>`;
+                
+                const info = document.createElement('div');
+                info.innerHTML = `<div style="font-weight: 500;">${item.name}</div>`;
+                
+                leftPart.appendChild(categoryIcon);
+                leftPart.appendChild(info);
+                
+                const rightPart = document.createElement('div');
+                rightPart.style.textAlign = 'right';
+                
+                const amount = document.createElement('div');
+                amount.className = 'bill-amount expense';
+                amount.textContent = `¥${item.amount.toFixed(2)}`;
+                
+                const percent = document.createElement('div');
+                percent.textContent = `${item.percent}%`;
+                percent.style.fontSize = '12px';
+                percent.style.color = 'var(--text-secondary)';
+                
+                rightPart.appendChild(amount);
+                rightPart.appendChild(percent);
+                
+                listItem.appendChild(leftPart);
+                listItem.appendChild(rightPart);
+                list.appendChild(listItem);
+            });
+            
+            categoryList.appendChild(listTitle);
+            categoryList.appendChild(list);
+            
+            statsContent.appendChild(periodSelector);
+            statsContent.appendChild(monthSelector);
+            statsContent.appendChild(overviewCard);
+            statsContent.appendChild(chartCard);
+            statsContent.appendChild(categoryList);
+            
+            content.appendChild(statsContent);
+            content.appendChild(createTabBar('统计'));
+            
+            return screen;
+        }
+        
+        // 预算管理界面
+        function createBudgetScreen() {
+            const { screen, content } = createScreenContainer('预算管理');
+            content.appendChild(createStatusBar());
+            
+            const header = createHeader('预算管理', true, 'fa-plus');
+            
+            const budgetContent = document.createElement('div');
+            budgetContent.className = 'content';
+            
+            // 月份选择
+            const monthSelector = document.createElement('div');
+            monthSelector.style.display = 'flex';
+            monthSelector.style.justifyContent = 'space-between';
+            monthSelector.style.alignItems = 'center';
+            monthSelector.style.marginBottom = '20px';
+            
+            const prevMonth = document.createElement('div');
+            prevMonth.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            
+            const currentMonth = document.createElement('div');
+            currentMonth.textContent = '2023年10月';
+            currentMonth.style.fontWeight = 'bold';
+            
+            const nextMonth = document.createElement('div');
+            nextMonth.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextMonth.style.color = '#ccc'; // 禁用状态
+            
+            monthSelector.appendChild(prevMonth);
+            monthSelector.appendChild(currentMonth);
+            monthSelector.appendChild(nextMonth);
+            
+            // 总体预算
+            const totalBudgetCard = document.createElement('div');
+            totalBudgetCard.className = 'card';
+            totalBudgetCard.style.marginBottom = '20px';
+            
+            const totalBudgetHeader = document.createElement('div');
+            totalBudgetHeader.style.display = 'flex';
+            totalBudgetHeader.style.justifyContent = 'space-between';
+            totalBudgetHeader.style.alignItems = 'center';
+            totalBudgetHeader.style.marginBottom = '15px';
+            
+            const totalBudgetTitle = document.createElement('div');
+            totalBudgetTitle.textContent = '总体预算';
+            totalBudgetTitle.style.fontWeight = 'bold';
+            
+            const editButton = document.createElement('div');
+            editButton.innerHTML = '<i class="fas fa-pen"></i>';
+            editButton.style.color = 'var(--primary-color)';
+            
+            totalBudgetHeader.appendChild(totalBudgetTitle);
+            totalBudgetHeader.appendChild(editButton);
+            
+            const budgetProgress = document.createElement('div');
+            budgetProgress.style.marginBottom = '10px';
+            
+            const budgetInfo = document.createElement('div');
+            budgetInfo.style.display = 'flex';
+            budgetInfo.style.justifyContent = 'space-between';
+            budgetInfo.style.marginBottom = '5px';
+            
+            const usedBudget = document.createElement('div');
+            usedBudget.textContent = '已用';
+            
+            const budgetNumbers = document.createElement('div');
+            budgetNumbers.innerHTML = '<span style="color: var(--danger-color); font-weight: bold;">¥3,650</span> / ¥5,000';
+            
+            budgetInfo.appendChild(usedBudget);
+            budgetInfo.appendChild(budgetNumbers);
+            
+            const progressBar = document.createElement('div');
+            progressBar.style.height = '8px';
+            progressBar.style.backgroundColor = 'var(--light-bg)';
+            progressBar.style.borderRadius = '4px';
+            progressBar.style.overflow = 'hidden';
+            
+            const progress = document.createElement('div');
+            progress.style.width = '73%';
+            progress.style.height = '100%';
+            progress.style.backgroundColor = 'var(--primary-color)';
+            
+            progressBar.appendChild(progress);
+            
+            const remainingInfo = document.createElement('div');
+            remainingInfo.style.display = 'flex';
+            remainingInfo.style.justifyContent = 'space-between';
+            remainingInfo.style.marginTop = '5px';
+            remainingInfo.style.fontSize = '14px';
+            
+            const remainingLabel = document.createElement('div');
+            remainingLabel.textContent = '剩余预算';
+            remainingLabel.style.color = 'var(--text-secondary)';
+            
+            const remainingAmount = document.createElement('div');
+            remainingAmount.textContent = '¥1,350 (27%)';
+            
+            remainingInfo.appendChild(remainingLabel);
+            remainingInfo.appendChild(remainingAmount);
+            
+            budgetProgress.appendChild(budgetInfo);
+            budgetProgress.appendChild(progressBar);
+            budgetProgress.appendChild(remainingInfo);
+            
+            totalBudgetCard.appendChild(totalBudgetHeader);
+            totalBudgetCard.appendChild(budgetProgress);
+            
+            // 分类预算
+            const categoryBudgetCard = document.createElement('div');
+            categoryBudgetCard.className = 'card';
+            
+            const categoryBudgetHeader = document.createElement('div');
+            categoryBudgetHeader.style.display = 'flex';
+            categoryBudgetHeader.style.justifyContent = 'space-between';
+            categoryBudgetHeader.style.alignItems = 'center';
+            categoryBudgetHeader.style.marginBottom = '15px';
+            
+            const categoryBudgetTitle = document.createElement('div');
+            categoryBudgetTitle.textContent = '分类预算';
+            categoryBudgetTitle.style.fontWeight = 'bold';
+            
+            categoryBudgetHeader.appendChild(categoryBudgetTitle);
+            
+            const categoryBudgets = [
+                { icon: 'fa-utensils', name: '餐饮', budget: 1200, used: 1095, color: '#FF9500' },
+                { icon: 'fa-shopping-bag', name: '购物', budget: 1000, used: 912.5, color: '#FF2D55' },
+                { icon: 'fa-subway', name: '交通', budget: 600, used: 547.5, color: '#007AFF' },
+                { icon: 'fa-home', name: '住房', budget: 1500, used: 547.5, color: '#5856D6' },
+                { icon: 'fa-plus', name: '添加类别', budget: 0, used: 0, color: '#E5E5EA' }
+            ];
+            
+            const categoryList = document.createElement('div');
+            
+            categoryBudgets.forEach((category, index) => {
+                const categoryItem = document.createElement('div');
+                categoryItem.style.borderBottom = index < categoryBudgets.length - 1 ? '1px solid #f1f1f1' : 'none';
+                categoryItem.style.padding = '15px 0';
+                
+                const itemHeader = document.createElement('div');
+                itemHeader.style.display = 'flex';
+                itemHeader.style.justifyContent = 'space-between';
+                itemHeader.style.marginBottom = '10px';
+                
+                const categoryInfo = document.createElement('div');
+                categoryInfo.style.display = 'flex';
+                categoryInfo.style.alignItems = 'center';
+                
+                if (category.name === '添加类别') {
+                    categoryInfo.style.color = 'var(--primary-color)';
+                    categoryInfo.innerHTML = '<i class="fas fa-plus" style="margin-right: 5px;"></i> 添加预算类别';
+                    
+                    itemHeader.appendChild(categoryInfo);
+                    categoryItem.appendChild(itemHeader);
+                    categoryList.appendChild(categoryItem);
+                    return;
+                }
+                
+                const iconCircle = document.createElement('div');
+                iconCircle.style.width = '30px';
+                iconCircle.style.height = '30px';
+                iconCircle.style.borderRadius = '50%';
+                iconCircle.style.backgroundColor = category.color;
+                iconCircle.style.display = 'flex';
+                iconCircle.style.justifyContent = 'center';
+                iconCircle.style.alignItems = 'center';
+                iconCircle.style.marginRight = '10px';
+                iconCircle.innerHTML = `<i class="fas ${category.icon}" style="color: white; font-size: 14px;"></i>`;
+                
+                const categoryName = document.createElement('div');
+                categoryName.textContent = category.name;
+                
+                categoryInfo.appendChild(iconCircle);
+                categoryInfo.appendChild(categoryName);
+                
+                const budgetAmount = document.createElement('div');
+                budgetAmount.innerHTML = `¥${category.used} / <span style="font-weight: bold;">¥${category.budget}</span>`;
+                
+                itemHeader.appendChild(categoryInfo);
+                itemHeader.appendChild(budgetAmount);
+                
+                const itemProgress = document.createElement('div');
+                
+                const progressBar = document.createElement('div');
+                progressBar.style.height = '6px';
+                progressBar.style.backgroundColor = 'var(--light-bg)';
+                progressBar.style.borderRadius = '3px';
+                progressBar.style.overflow = 'hidden';
+                
+                const percent = Math.min(Math.round((category.used / category.budget) * 100), 100);
+                const progress = document.createElement('div');
+                progress.style.width = `${percent}%`;
+                progress.style.height = '100%';
+                progress.style.backgroundColor = percent > 90 ? 'var(--danger-color)' : category.color;
+                
+                progressBar.appendChild(progress);
+                
+                const percentText = document.createElement('div');
+                percentText.style.fontSize = '12px';
+                percentText.style.color = 'var(--text-secondary)';
+                percentText.style.textAlign = 'right';
+                percentText.style.marginTop = '5px';
+                percentText.textContent = `已用 ${percent}%`;
+                
+                itemProgress.appendChild(progressBar);
+                itemProgress.appendChild(percentText);
+                
+                categoryItem.appendChild(itemHeader);
+                categoryItem.appendChild(itemProgress);
+                categoryList.appendChild(categoryItem);
+            });
+            
+            categoryBudgetCard.appendChild(categoryBudgetHeader);
+            categoryBudgetCard.appendChild(categoryList);
+            
+            // AI预算建议
+            const aiSuggestionCard = document.createElement('div');
+            aiSuggestionCard.className = 'card';
+            aiSuggestionCard.style.backgroundColor = 'var(--light-bg)';
+            aiSuggestionCard.style.marginTop = '20px';
+            
+            const aiHeader = document.createElement('div');
+            aiHeader.style.display = 'flex';
+            aiHeader.style.alignItems = 'center';
+            aiHeader.style.marginBottom = '10px';
+            
+            const aiIcon = document.createElement('div');
+            aiIcon.style.marginRight = '10px';
+            aiIcon.innerHTML = '<i class="fas fa-robot" style="color: var(--primary-color);"></i>';
+            
+            const aiTitle = document.createElement('div');
+            aiTitle.textContent = 'AI预算建议';
+            aiTitle.style.fontWeight = 'bold';
+            
+            aiHeader.appendChild(aiIcon);
+            aiHeader.appendChild(aiTitle);
+            
+            const aiContent = document.createElement('div');
+            aiContent.innerHTML = `
+                <div style="margin-bottom: 10px;">根据你的收入和消费习惯，建议调整餐饮预算至 ¥1,000/月。</div>
+                <div>你的购物支出比较均衡，预算设置合理。</div>
+            `;
+            
+            aiSuggestionCard.appendChild(aiHeader);
+            aiSuggestionCard.appendChild(aiContent);
+            
+            budgetContent.appendChild(monthSelector);
+            budgetContent.appendChild(totalBudgetCard);
+            budgetContent.appendChild(categoryBudgetCard);
+            budgetContent.appendChild(aiSuggestionCard);
+            
+            content.appendChild(header);
+            content.appendChild(budgetContent);
+            
+            return screen;
+        }
+        
+        // 设置界面
+        function createSettingsScreen() {
+            const { screen, content } = createScreenContainer('设置');
+            content.appendChild(createStatusBar());
+            
+            const header = createHeader('设置', false);
+            
+            const settingsContent = document.createElement('div');
+            settingsContent.className = 'content';
+            
+            // 设置组
+            const createSettingGroup = (title, items) => {
+                const group = document.createElement('div');
+                group.style.marginBottom = '30px';
+                
+                if (title) {
+                    const groupTitle = document.createElement('div');
+                    groupTitle.textContent = title;
+                    groupTitle.style.color = 'var(--text-secondary)';
+                    groupTitle.style.fontSize = '14px';
+                    groupTitle.style.marginBottom = '10px';
+                    groupTitle.style.paddingLeft = '15px';
+                    
+                    group.appendChild(groupTitle);
+                }
+                
+                const groupCard = document.createElement('div');
+                groupCard.className = 'card';
+                groupCard.style.padding = '0';
+                
+                items.forEach((item, index) => {
+                    const settingItem = document.createElement('div');
+                    settingItem.style.padding = '15px';
+                    settingItem.style.display = 'flex';
+                    settingItem.style.justifyContent = 'space-between';
+                    settingItem.style.alignItems = 'center';
+                    
+                    if (index < items.length - 1) {
+                        settingItem.style.borderBottom = '1px solid #f1f1f1';
+                    }
+                    
+                    const leftPart = document.createElement('div');
+                    leftPart.style.display = 'flex';
+                    leftPart.style.alignItems = 'center';
+                    
+                    if (item.icon) {
+                        const icon = document.createElement('div');
+                        icon.style.width = '36px';
+                        icon.style.height = '36px';
+                        icon.style.borderRadius = '50%';
+                        icon.style.backgroundColor = item.iconBg || 'var(--light-bg)';
+                        icon.style.display = 'flex';
+                        icon.style.justifyContent = 'center';
+                        icon.style.alignItems = 'center';
+                        icon.style.marginRight = '10px';
+                        icon.innerHTML = `<i class="fas ${item.icon}" style="color: ${item.iconColor || 'var(--primary-color)'}; font-size: 16px;"></i>`;
+                        
+                        leftPart.appendChild(icon);
+                    }
+                    
+                    const label = document.createElement('div');
+                    label.textContent = item.label;
+                    
+                    leftPart.appendChild(label);
+                    
+                    const rightPart = document.createElement('div');
+                    rightPart.style.display = 'flex';
+                    rightPart.style.alignItems = 'center';
+                    
+                    if (item.value) {
+                        const value = document.createElement('div');
+                        value.textContent = item.value;
+                        value.style.color = 'var(--text-secondary)';
+                        value.style.marginRight = '10px';
+                        
+                        rightPart.appendChild(value);
+                    }
+                    
+                    if (item.type === 'toggle') {
+                        const toggle = document.createElement('div');
+                        toggle.style.width = '50px';
+                        toggle.style.height = '30px';
+                        toggle.style.backgroundColor = item.toggled ? 'var(--success-color)' : '#E5E5EA';
+                        toggle.style.borderRadius = '15px';
+                        toggle.style.position = 'relative';
+                        toggle.style.transition = 'background-color 0.3s';
+                        
+                        const knob = document.createElement('div');
+                        knob.style.width = '26px';
+                        knob.style.height = '26px';
+                        knob.style.backgroundColor = 'white';
+                        knob.style.borderRadius = '50%';
+                        knob.style.position = 'absolute';
+                        knob.style.top = '2px';
+                        knob.style.left = item.toggled ? '22px' : '2px';
+                        knob.style.transition = 'left 0.3s';
+                        
+                        toggle.appendChild(knob);
+                        rightPart.appendChild(toggle);
+                    } else {
+                        const chevron = document.createElement('div');
+                        chevron.innerHTML = '<i class="fas fa-chevron-right" style="color: #C7C7CC;"></i>';
+                        
+                        rightPart.appendChild(chevron);
+                    }
+                    
+                    settingItem.appendChild(leftPart);
+                    settingItem.appendChild(rightPart);
+                    
+                    groupCard.appendChild(settingItem);
+                });
+                
+                group.appendChild(groupCard);
+                return group;
+            };
+            
+            // 账户设置
+            const accountSettings = createSettingGroup('账户', [
+                { icon: 'fa-user', iconBg: '#FF9500', label: '个人资料' },
+                { icon: 'fa-bell', iconBg: '#FF3B30', label: '通知设置', type: 'toggle', toggled: true },
+                { icon: 'fa-lock', iconBg: '#5856D6', label: '隐私设置' }
+            ]);
+            
+            // 应用设置
+            const appSettings = createSettingGroup('应用设置', [
+                { icon: 'fa-palette', iconBg: '#AF52DE', label: '主题设置', value: '蓝色' },
+                { icon: 'fa-money-bill-wave', iconBg: '#30B0C7', label: '货币单位', value: 'CNY' },
+                { icon: 'fa-language', iconBg: '#007AFF', label: '语言', value: '简体中文' },
+                { icon: 'fa-cloud', iconBg: '#5AC8FA', label: '云同步', type: 'toggle', toggled: true }
+            ]);
+            
+            // AI设置
+            const aiSettings = createSettingGroup('AI助手设置', [
+                { icon: 'fa-robot', iconBg: '#34C759', label: 'AI识别精度', value: '标准' },
+                { icon: 'fa-microphone', iconBg: '#FF2D55', label: '语音助手', type: 'toggle', toggled: true },
+                { icon: 'fa-comment', iconBg: '#5856D6', label: 'AI建议提醒', type: 'toggle', toggled: true }
+            ]);
+            
+            // 其他设置
+            const otherSettings = createSettingGroup('其他', [
+                { icon: 'fa-question-circle', iconBg: '#007AFF', label: '帮助与反馈' },
+                { icon: 'fa-info-circle', iconBg: '#8E8E93', label: '关于我们' },
+                { label: '退出登录', iconColor: 'var(--danger-color)' }
+            ]);
+            
+            settingsContent.appendChild(accountSettings);
+            settingsContent.appendChild(appSettings);
+            settingsContent.appendChild(aiSettings);
+            settingsContent.appendChild(otherSettings);
+            
+            content.appendChild(header);
+            content.appendChild(settingsContent);
+            content.appendChild(createTabBar('我的'));
+            
+            return screen;
+        }
+        
+        // 个人资料界面
+        function createProfileScreen() {
+            const { screen, content } = createScreenContainer('个人资料');
+            content.appendChild(createStatusBar());
+            
+            const header = createHeader('个人资料');
+            
+            const profileContent = document.createElement('div');
+            profileContent.className = 'content';
+            
+            // 头像和名称
+            const profileHeader = document.createElement('div');
+            profileHeader.style.display = 'flex';
+            profileHeader.style.flexDirection = 'column';
+            profileHeader.style.alignItems = 'center';
+            profileHeader.style.marginBottom = '30px';
+            
+            const avatar = document.createElement('div');
+            avatar.style.width = '100px';
+            avatar.style.height = '100px';
+            avatar.style.borderRadius = '50%';
+            avatar.style.backgroundColor = 'var(--light-bg)';
+            avatar.style.display = 'flex';
+            avatar.style.justifyContent = 'center';
+            avatar.style.alignItems = 'center';
+            avatar.style.marginBottom = '15px';
+            avatar.style.position = 'relative';
+            avatar.innerHTML = '<i class="fas fa-user" style="font-size: 40px; color: #8E8E93;"></i>';
+            
+            const editAvatarBtn = document.createElement('div');
+            editAvatarBtn.style.position = 'absolute';
+            editAvatarBtn.style.bottom = '0';
+            editAvatarBtn.style.right = '0';
+            editAvatarBtn.style.width = '30px';
+            editAvatarBtn.style.height = '30px';
+            editAvatarBtn.style.borderRadius = '50%';
+            editAvatarBtn.style.backgroundColor = 'var(--primary-color)';
+            editAvatarBtn.style.display = 'flex';
+            editAvatarBtn.style.justifyContent = 'center';
+            editAvatarBtn.style.alignItems = 'center';
+            editAvatarBtn.innerHTML = '<i class="fas fa-camera" style="color: white; font-size: 14px;"></i>';
+            
+            avatar.appendChild(editAvatarBtn);
+            
+            const userName = document.createElement('div');
+            userName.textContent = '张小明';
+            userName.style.fontSize = '20px';
+            userName.style.fontWeight = 'bold';
+            userName.style.marginBottom = '5px';
+            
+            const userInfo = document.createElement('div');
+            userInfo.textContent = '使用AI记账，让财务管理更简单';
+            userInfo.style.color = 'var(--text-secondary)';
+            userInfo.style.fontSize = '14px';
+            
+            profileHeader.appendChild(avatar);
+            profileHeader.appendChild(userName);
+            profileHeader.appendChild(userInfo);
+            
+            // 基本信息
+            const basicInfoCard = document.createElement('div');
+            basicInfoCard.className = 'card';
+            basicInfoCard.style.marginBottom = '20px';
+            
+            const infoTitle = document.createElement('div');
+            infoTitle.textContent = '基本信息';
+            infoTitle.style.fontWeight = 'bold';
+            infoTitle.style.marginBottom = '15px';
+            
+            const infoList = document.createElement('div');
+            
+            const createInfoItem = (label, value, isLast = false) => {
+                const item = document.createElement('div');
+                item.style.display = 'flex';
+                item.style.justifyContent = 'space-between';
+                item.style.padding = '12px 0';
+                
+                if (!isLast) {
+                    item.style.borderBottom = '1px solid #f1f1f1';
+                }
+                
+                const labelEl = document.createElement('div');
+                labelEl.textContent = label;
+                labelEl.style.color = 'var(--text-secondary)';
+                
+                const valueEl = document.createElement('div');
+                valueEl.textContent = value;
+                
+                item.appendChild(labelEl);
+                item.appendChild(valueEl);
+                return item;
+            };
+            
+            const phoneItem = createInfoItem('手机号码', '138****6666');
+            const emailItem = createInfoItem('邮箱', 'zhang***@example.com');
+            const genderItem = createInfoItem('性别', '男');
+            const birthItem = createInfoItem('出生日期', '1990-01-01', true);
+            
+            infoList.appendChild(phoneItem);
+            infoList.appendChild(emailItem);
+            infoList.appendChild(genderItem);
+            infoList.appendChild(birthItem);
+            
+            basicInfoCard.appendChild(infoTitle);
+            basicInfoCard.appendChild(infoList);
+            
+            // 账户安全
+            const securityCard = document.createElement('div');
+            securityCard.className = 'card';
+            
+            const securityTitle = document.createElement('div');
+            securityTitle.textContent = '账户安全';
+            securityTitle.style.fontWeight = 'bold';
+            securityTitle.style.marginBottom = '15px';
+            
+            const securityList = document.createElement('div');
+            
+            const passwordItem = createInfoItem('修改密码', '', false);
+            const passwordArrow = document.createElement('i');
+            passwordArrow.className = 'fas fa-chevron-right';
+            passwordArrow.style.color = '#C7C7CC';
+            passwordItem.querySelector('div:last-child').appendChild(passwordArrow);
+            
+            const faceIdItem = createInfoItem('人脸识别', '', true);
+            const faceIdToggle = document.createElement('div');
+            faceIdToggle.style.width = '50px';
+            faceIdToggle.style.height = '30px';
+            faceIdToggle.style.backgroundColor = 'var(--success-color)';
+            faceIdToggle.style.borderRadius = '15px';
+            faceIdToggle.style.position = 'relative';
+            
+            const faceIdKnob = document.createElement('div');
+            faceIdKnob.style.width = '26px';
+            faceIdKnob.style.height = '26px';
+            faceIdKnob.style.backgroundColor = 'white';
+            faceIdKnob.style.borderRadius = '50%';
+            faceIdKnob.style.position = 'absolute';
+            faceIdKnob.style.top = '2px';
+            faceIdKnob.style.left = '22px';
+            
+            faceIdToggle.appendChild(faceIdKnob);
+            faceIdItem.querySelector('div:last-child').appendChild(faceIdToggle);
+            
+            securityList.appendChild(passwordItem);
+            securityList.appendChild(faceIdItem);
+            
+            securityCard.appendChild(securityTitle);
+            securityCard.appendChild(securityList);
+            
+            // 保存按钮
+            const saveButton = document.createElement('button');
+            saveButton.className = 'button';
+            saveButton.textContent = '保存修改';
+            saveButton.style.marginTop = '30px';
+            
+            profileContent.appendChild(profileHeader);
+            profileContent.appendChild(basicInfoCard);
+            profileContent.appendChild(securityCard);
+            profileContent.appendChild(saveButton);
+            
+            content.appendChild(header);
+            content.appendChild(profileContent);
+            
+            return screen;
+        }
+        
+        // 月度统计界面
+        function createMonthlyStatsScreen() {
+            const { screen, content } = createScreenContainer('月度统计');
+            content.appendChild(createStatusBar());
+            
+            const header = createHeader('月度统计');
+            
+            const statsContent = document.createElement('div');
+            statsContent.className = 'content';
+            
+            // 时间选择
+            const periodSelector = document.createElement('div');
+            periodSelector.style.display = 'flex';
+            periodSelector.style.justifyContent = 'space-between';
+            periodSelector.style.alignItems = 'center';
+            periodSelector.style.marginBottom = '20px';
+            
+            const prevMonth = document.createElement('div');
+            prevMonth.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            
+            const currentMonth = document.createElement('div');
+            currentMonth.textContent = '2023年10月';
+            currentMonth.style.fontWeight = 'bold';
+            
+            const nextMonth = document.createElement('div');
+            nextMonth.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextMonth.style.color = '#ccc'; // 禁用状态
+            
+            periodSelector.appendChild(prevMonth);
+            periodSelector.appendChild(currentMonth);
+            periodSelector.appendChild(nextMonth);
+            
+            // 总览数据
+            const overviewCard = document.createElement('div');
+            overviewCard.className = 'card';
+            overviewCard.style.marginBottom = '20px';
+            
+            const overviewData = document.createElement('div');
+            overviewData.style.display = 'flex';
+            overviewData.style.justifyContent = 'space-between';
+            
+            const expenseCol = document.createElement('div');
+            expenseCol.innerHTML = '<div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 5px;">支出</div><div style="color: var(--danger-color); font-size: 24px; font-weight: bold;">¥3,650</div>';
+            
+            const incomeCol = document.createElement('div');
+            incomeCol.innerHTML = '<div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 5px;">收入</div><div style="color: var(--success-color); font-size: 24px; font-weight: bold;">¥5,280</div>';
+            
+            const balanceCol = document.createElement('div');
+            balanceCol.innerHTML = '<div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 5px;">结余</div><div style="font-size: 24px; font-weight: bold;">¥1,630</div>';
+            
+            overviewData.appendChild(expenseCol);
+            overviewData.appendChild(incomeCol);
+            overviewData.appendChild(balanceCol);
+            
+            overviewCard.appendChild(overviewData);
+            
+            // 趋势图
+            const trendCard = document.createElement('div');
+            trendCard.className = 'card';
+            trendCard.style.marginBottom = '20px';
+            
+            const trendTitle = document.createElement('div');
+            trendTitle.textContent = '收支趋势';
+            trendTitle.style.fontWeight = 'bold';
+            trendTitle.style.marginBottom = '15px';
+            
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'chart-container';
+            
+            const barChart = document.createElement('div');
+            barChart.className = 'bar-chart';
+            
+            const days = [1, 5, 10, 15, 20, 25, 30];
+            const expenseHeights = [30, 60, 40, 90, 50, 80, 70]; // 百分比高度
+            
+            days.forEach((day, index) => {
+                const barGroup = document.createElement('div');
+                barGroup.style.display = 'flex';
+                barGroup.style.flexDirection = 'column';
+                barGroup.style.alignItems = 'center';
+                
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = `${expenseHeights[index]}%`;
+                
+                const dayLabel = document.createElement('div');
+                dayLabel.textContent = day + '日';
+                dayLabel.style.marginTop = '5px';
+                dayLabel.style.fontSize = '12px';
+                dayLabel.style.color = 'var(--text-secondary)';
+                
+                barGroup.appendChild(bar);
+                barGroup.appendChild(dayLabel);
+                barChart.appendChild(barGroup);
+            });
+            
+            chartContainer.appendChild(barChart);
+            
+            const chartLegend = document.createElement('div');
+            chartLegend.style.display = 'flex';
+            chartLegend.style.justifyContent = 'center';
+            chartLegend.style.marginTop = '10px';
+            
+            const legendItem = document.createElement('div');
+            legendItem.style.display = 'flex';
+            legendItem.style.alignItems = 'center';
+            legendItem.style.marginRight = '20px';
+            
+            const legendColor = document.createElement('div');
+            legendColor.style.width = '12px';
+            legendColor.style.height = '12px';
+            legendColor.style.backgroundColor = 'var(--primary-color)';
+            legendColor.style.borderRadius = '2px';
+            legendColor.style.marginRight = '5px';
+            
+            const legendText = document.createElement('div');
+            legendText.textContent = '支出';
+            legendText.style.fontSize = '12px';
+            
+            legendItem.appendChild(legendColor);
+            legendItem.appendChild(legendText);
+            chartLegend.appendChild(legendItem);
+            
+            trendCard.appendChild(trendTitle);
+            trendCard.appendChild(chartContainer);
+            trendCard.appendChild(chartLegend);
+            
+            // 本月收支明细
+            const detailsTitle = document.createElement('div');
+            detailsTitle.className = 'section-title';
+            detailsTitle.textContent = '本月收支明细';
+            
+            const dateGroups = [
+                { date: '10月30日', items: [
+                    { icon: 'fa-utensils', category: '餐饮', description: '晚餐', amount: -45, time: '18:30' }
+                ]},
+                { date: '10月29日', items: [
+                    { icon: 'fa-shopping-bag', category: '购物', description: '超市', amount: -128.5, time: '16:45' },
+                    { icon: 'fa-subway', category: '交通', description: '地铁', amount: -7, time: '09:15' }
+                ]},
+                { date: '10月15日', items: [
+                    { icon: 'fa-credit-card', category: '工资', description: '10月工资', amount: 5000, time: '10:00' }
+                ]}
+            ];
+            
+            const detailsList = document.createElement('div');
+            
+            dateGroups.forEach(group => {
+                const dateHeader = document.createElement('div');
+                dateHeader.style.padding = '10px 0';
+                dateHeader.style.color = 'var(--text-secondary)';
+                dateHeader.style.fontSize = '14px';
+                dateHeader.textContent = group.date;
+                
+                detailsList.appendChild(dateHeader);
+                
+                group.items.forEach(item => {
+                    const transaction = document.createElement('div');
+                    transaction.className = 'bill-item';
+                    
+                    const leftPart = document.createElement('div');
+                    leftPart.style.display = 'flex';
+                    leftPart.style.alignItems = 'center';
+                    
+                    const categoryIcon = document.createElement('div');
+                    categoryIcon.className = 'bill-category';
+                    categoryIcon.innerHTML = `<i class="fas ${item.icon}"></i>`;
+                    
+                    const info = document.createElement('div');
+                    info.innerHTML = `<div style="font-weight: 500;">${item.category}</div><div style="font-size: 12px; color: var(--text-secondary);">${item.description}</div>`;
+                    
+                    leftPart.appendChild(categoryIcon);
+                    leftPart.appendChild(info);
+                    
+                    const rightPart = document.createElement('div');
+                    rightPart.style.textAlign = 'right';
+                    
+                    const amount = document.createElement('div');
+                    amount.className = `bill-amount ${item.amount > 0 ? 'income' : 'expense'}`;
+                    amount.textContent = `${item.amount > 0 ? '+' : ''}${item.amount.toFixed(2)}`;
+                    
+                    const time = document.createElement('div');
+                    time.textContent = item.time;
+                    time.style.fontSize = '12px';
+                    time.style.color = 'var(--text-secondary)';
+                    
+                    rightPart.appendChild(amount);
+                    rightPart.appendChild(time);
+                    
+                    transaction.appendChild(leftPart);
+                    transaction.appendChild(rightPart);
+                    detailsList.appendChild(transaction);
+                });
+            });
+            
+            statsContent.appendChild(periodSelector);
+            statsContent.appendChild(overviewCard);
+            statsContent.appendChild(trendCard);
+            statsContent.appendChild(detailsTitle);
+            statsContent.appendChild(detailsList);
+            
+            content.appendChild(header);
+            content.appendChild(statsContent);
+            
+            return screen;
+        }
+        
+        // 初始化应用
+        function initApp() {
+            console.log('AI自动记账应用初始化完成');
+            
+            // 创建主容器，所有屏幕将在其中显示
+            const appContainer = document.createElement('div');
+            appContainer.id = 'app-container';
+            appContainer.style.width = '100%';
+            appContainer.style.height = '100%';
+            appContainer.style.position = 'relative';
+            appContainer.style.overflow = 'hidden';
+            document.body.appendChild(appContainer);
+            
+            // 创建并加载所有屏幕
+            const welcomeScreen = createWelcomeScreen();
+            const loginScreen = createLoginScreen();
+            const homeScreen = createHomeScreen();
+            const scanReceiptScreen = createScanReceiptScreen();
+            const manualEntryScreen = createManualEntryScreen();
+            const aiChatScreen = createAIChatScreen();
+            const billDetailsScreen = createBillDetailsScreen();
+            const categoryStatsScreen = createCategoryStatsScreen();
+            const budgetScreen = createBudgetScreen();
+            const settingsScreen = createSettingsScreen();
+            const profileScreen = createProfileScreen();
+            const monthlyStatsScreen = createMonthlyStatsScreen();
+            
+            // 添加所有屏幕到主容器中
+            appContainer.appendChild(welcomeScreen);
+            appContainer.appendChild(loginScreen);
+            appContainer.appendChild(homeScreen);
+            appContainer.appendChild(scanReceiptScreen);
+            appContainer.appendChild(manualEntryScreen);
+            appContainer.appendChild(aiChatScreen);
+            appContainer.appendChild(billDetailsScreen);
+            appContainer.appendChild(categoryStatsScreen);
+            appContainer.appendChild(budgetScreen);
+            appContainer.appendChild(settingsScreen);
+            appContainer.appendChild(profileScreen);
+            appContainer.appendChild(monthlyStatsScreen);
+            
+            // 默认只显示欢迎屏幕，隐藏其他屏幕
+            showScreen('welcome');
+            
+            // 添加事件监听和其他初始化逻辑
+            const tabItems = document.querySelectorAll('.tab-item');
+            tabItems.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.querySelector('span').textContent;
+                    navigateToScreen(tabName);
+                });
+            });
+            
+            // 示例: 为主页上的"扫描小票"按钮添加点击事件
+            const scanButtons = document.querySelectorAll('.tab-item .fa-camera');
+            scanButtons.forEach(button => {
+                button.parentElement.addEventListener('click', function() {
+                    navigateToScreen('扫描小票');
+                });
+            });
+            
+            // 示例: 为AI助手添加输入事件
+            const chatInputs = document.querySelectorAll('.chat-input input');
+            chatInputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const message = this.value;
+                        if (message.trim() !== '') {
+                            console.log(`发送消息: ${message}`);
+                            // 这里可以添加消息发送逻辑
+                            this.value = '';
+                        }
+                    }
+                });
+            });
+            
+            // 添加欢迎页面的开始按钮事件
+            const startButtons = document.querySelectorAll('.welcome-button');
+            startButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    showScreen('login');
+                });
+            });
+            
+            // 添加登录按钮事件
+            const loginButtons = document.querySelectorAll('.login-button');
+            loginButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    showScreen('home');
+                });
+            });
+        }
+        
+        // 显示指定屏幕，隐藏其他所有屏幕
+        function showScreen(screenId) {
+            const screens = {
+                'welcome': 'welcome-screen',
+                'login': 'login-screen',
+                'home': 'home-screen',
+                'scan': 'scan-receipt-screen',
+                'manual': 'manual-entry-screen',
+                'chat': 'ai-chat-screen',
+                'bill': 'bill-details-screen',
+                'stats': 'category-stats-screen',
+                'budget': 'budget-screen',
+                'settings': 'settings-screen',
+                'profile': 'profile-screen',
+                'monthly': 'monthly-stats-screen'
+            };
+            
+            // 隐藏所有屏幕
+            Object.values(screens).forEach(screenClass => {
+                const screenElements = document.querySelectorAll(`.${screenClass}`);
+                screenElements.forEach(element => {
+                    element.style.display = 'none';
+                });
+            });
+            
+            // 显示选定的屏幕
+            if (screens[screenId]) {
+                const targetScreenElements = document.querySelectorAll(`.${screens[screenId]}`);
+                targetScreenElements.forEach(element => {
+                    element.style.display = 'block';
+                });
+                console.log(`显示屏幕: ${screenId}`);
+            } else {
+                console.error(`未找到屏幕ID: ${screenId}`);
+            }
+        }
+        
+        // 全局导航函数
+        function navigateToScreen(screenId) {
+            // 根据屏幕名称映射到对应的屏幕ID
+            const screenMapping = {
+                '首页': 'home',
+                '扫描小票': 'scan',
+                '手动记账': 'manual',
+                'AI助手': 'chat',
+                '账单': 'bill',
+                '统计': 'stats',
+                '预算': 'budget',
+                '设置': 'settings',
+                '个人资料': 'profile',
+                '月度统计': 'monthly'
+            };
+            
+            const targetScreen = screenMapping[screenId] || screenId.toLowerCase();
+            showScreen(targetScreen);
+        }
+        
+        // 当文档加载完成时初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+        });
+    </script>
+</body>
+</html> 
